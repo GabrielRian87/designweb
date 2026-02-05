@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body>
+
+<div><p>Sobre:</p>
+    <div x-data="{ ativo: null }">
+        <button @click="ativo = 1">P1</button>
+        <div x-show="ativo === 1">R1</div>
+        <button @click="ativo = 2">P2</button>
+        <div x-show="ativo === 2">R2</div>
+    </div>
+</div>
+<br>
+
+<div><p>Contatos:</p>
+<div x-data="{ email: '', mensagem: '', enviado: false }">
+    <form @submit.prevent="enviado = true; email = ''; mensagem = ''">
+        <div>
+            <label>Email:</label><br>
+            <input 
+                type="email" 
+                required
+            >
+        </div><br>
+
+        <div>
+            <label>Mensagem:</label><br>
+            <input 
+                x-model="mensagem"  
+                required
+            ></input>
+        </div><br>
+
+        <button 
+            type="submit"
+            :disabled="email.trim() === '' || mensagem.trim() === '' || !email.includes('@')"
+        >
+            Enviar
+        </button>
+    </form>
+
+    <div x-show="enviado" ><br>
+        Mensagem enviada
+    </div>
+</div>
