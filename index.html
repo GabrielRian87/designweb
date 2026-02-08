@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Todo List com Alpine Store</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+ 
+  <style>
+    .Task-Master{
+        padding: 5px;
+    }
+  </style>
+</head>
+<body>
+
+
+<div x-data>
+    <p>Minhas Tarefas</p>
+
+    <div class="Task-Master">
+      <input x-model="novo" @keydown.enter="tags.push(novo); novo=''"
+        type="text" 
+        x-model="newTask"
+        placeholder="Adicionar tarefa"
+        @keyup.enter="addTask()">
+
+      <button @click="addTask()" >
+        Adicionar
+      </button>
+    </div>
+
+    <div class="filters">
+      <button 
+        :class="{ active: $store.tasks.filter === 'all' }"
+        @click="$store.tasks.filter = 'all'">
+        Todas
+      </button>
+
+      <button 
+        :class="{ active: $store.tasks.filter === 'todo' }"
+        @click="$store.tasks.filter = 'todo'">
+        Pendentes
+      </button>
+
+      <button 
+        :class="{ active: $store.tasks.filter === 'done' }"
+        @click="$store.tasks.filter = 'done'">
+        Concluída
+      </button>
+      
+    </div>
+
+    <ul>
+      <template x-for="task in $store.tasks.filtered" :key="task.id">
+        <li style="padding: 0.8rem; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 0.8rem;">
+          <input 
+            type="checkbox" 
+            :checked="task.done"
+            @change="$store.tasks.toggleDone(task.id)">
+          <span :class="{ done: task.done }" x-text="task.text"></span>
+          
+          <button 
+            @click="$store.tasks.remove(task.id)"
+          </button>
+
+        </li>
+      </template>
+
+      <li x-show="$store.tasks.filtered.length === 0">
+        <p>Nenhuma tarefa aqui...</p>
+      </li>
+    </ul>
+  </div>
+
+<script>
+    Alpine.store('todo', {
+    items: [],
+    filter: 'all',
+    newTask: '',                
+
+    get list() {
+        if (this.filter === 'done') {
+            return this.items.filter(item => item.done);
+        }
+        if (this.filter === 'pending') {
+            return this.items.filter(item => !item.done);
+        }
+        return this.items;
+    },
+
+    add(text) {
+        if (!text || text.trim() === '') {
+            return;
+        }
+
+        const newItem = {
+            id: Date.now(),           
+            text: text.trim(),        
+            done: false,              
+            createdAt: new Date()     
+        };
+
+        this.items.unshift(newItem);   
+
+        this.newTask = '';
+    },
+
+    toggle(id) {
+        const item = this.items.find(i => i.id === id);
+        if (item) {
+            item.done = !item.done;
+        }
+    },
+
+    remove(id) {
+        this.items = this.items.filter(i => i.id !== id);
+    },
+
+    clearCompleted() {
+        this.items = this.items.filter(i => !i.done);
+    }
+});
+</script>
+
+</body>
+</html>
